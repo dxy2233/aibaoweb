@@ -1,0 +1,15 @@
+<template>
+  <div id="orderform">
+    2222
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'OrderForm'
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+</style>

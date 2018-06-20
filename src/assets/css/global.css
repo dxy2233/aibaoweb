@@ -1,0 +1,29 @@
+:root {
+  --blue: #69c;
+  --d-blue: #e5f2ff;
+  --s-blue: #f0f5fa;
+  --sky-blue: #77b1ea;
+  --red: #c00;
+  --bgc: #fff;
+  --price-fs: 36px;
+  --b-fs: 33px;
+  --m-fs: 32px;
+  --m2-fs: 30px;
+  --m3-fs: 28px;
+  --s-fs: 26px;
+  --d-bgc: #333;
+  --m-bgc: #666;
+  --s-bgc: #999;
+  --edge: 20px;
+}
+
+/* 产品列表价格 */
+.price {
+  font-size: var(--s-fs);
+  color: var(--s-bgc);
+  float: right;
+  & span {
+    font-size: var(--price-fs);
+    color: var(--red);
+  }
+}

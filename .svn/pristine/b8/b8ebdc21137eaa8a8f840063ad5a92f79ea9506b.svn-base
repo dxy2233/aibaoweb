@@ -1,0 +1,36 @@
+<template>
+  <div id="order">
+
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Order',
+  props: {
+    id: {} // 产品ID
+  },
+  data () {
+    return {}
+  },
+  mounted () {
+    this.getInfo()
+  },
+  methods: {
+    // 获取所有信息
+    getInfo () {
+      this.axios.get('/api2/getOrderForm', {
+        params: {
+          plan_id: this.id
+        }
+      }).then(res => {
+        console.log(res.data)
+      })
+    }
+  }
+}
+</script>
+
+<style>
+@import '../../assets/css/global.css';
+</style>

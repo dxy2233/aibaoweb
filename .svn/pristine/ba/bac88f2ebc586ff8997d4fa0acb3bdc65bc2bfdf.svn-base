@@ -1,0 +1,23 @@
+<template>
+  <div id="contrast">
+    <!-- 顶部提示 -->
+    <tips></tips>
+    <tabBar></tabBar>
+  </div>
+</template>
+
+<script>
+import tips from '@/components/Tips'
+import tabBar from '@/components/TabBar'
+export default {
+  name: 'Contrast',
+  components: {
+    tips,
+    tabBar
+  }
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+</style>

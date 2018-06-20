@@ -1,0 +1,618 @@
+<template>
+  <div id="decisionstep">
+    <toast v-model="show" :time="800" type="text" width="200px" position="middle" :text="toastText"></toast>
+
+    <div class="module zero">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">您好，我是AI保的智能顾问-爱宝。<br/>请花2分钟回答几个问题，为您定制保障方案。
+            <br/>您越认真，我越靠谱！</div>
+          <div class="question" v-if="step == 0">
+            <div class="btn" @click="add">开始定制吧
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-xiangyou"></use>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 0">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module one" v-if="step >= 1">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(1/13)我该称呼您先生还是女士呢？</div>
+          <div class="question" v-if="step == 1">
+            <div class="main">
+              <div class="radiowrap">
+                <input type="radio" id="m" value="m" v-model="sex">
+                <label for="m">男</label>
+              </div>
+              <div class="radiowrap">
+                <input type="radio" id="f" value="f" v-model="sex">
+                <label for="f">女</label>
+              </div>
+            </div>
+            <div class="btn" @click="one">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 1">
+        <div class="text">{{ oneText }}</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module two" v-if="step >= 2">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(2/13)您要为哪些家人投保呢？<span>(可单选可多选，也可点击“+”添加更多)</span></div>
+          <div class="question" v-if="step == 2">
+            <div class="main">
+              <div class="checkbox" v-for="item in family" :key="item.index">
+                <input type="checkbox" :id="item.index" :value="item" v-model="person">
+                <label :for="item.index">{{ item.name }}</label>
+              </div>
+            </div>
+            <div class="btn" @click="two">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 2">
+        <div class="text">投保对象：
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}
+            <span v-if="index < person.length-1">、</span>
+          </span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module three" v-if="step >= 3">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(3/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 3">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <datePicker @update="changeBirth($event, index)" :text="birth[index]" :selected="birth[index]"></datePicker>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="three">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 3">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ birth[index][0] }}-{{ birth[index][1] }}-{{ birth[index][2] }}<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module four" v-if="step >= 4">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(4/13)被保人的职业类型是？</div>
+          <div class="question" v-if="step == 4">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <singlePicker @update="changeJob($event, index)" :content="jobType" :index="job[index]" :text="job[index]" :title="'职业类型'"></singlePicker>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="four">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 4">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ jobType[0][job[index]].text }}<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module five" v-if="step >= 5">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(5/13)被保人的个人年收入是？<span>(请填写0-9999中的整数，如无收入请填写0)</span></div>
+          <div class="question" v-if="step == 5">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <input type="text" maxlength="4" v-model="income[index]">万/年
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="five">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 5">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="module four" v-if="step >= 6">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(6/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 6">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 6">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 7">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(7/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 7">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 7">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 8">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(8/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 8">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 8">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 9">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(9/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 9">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 9">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 10">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(10/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 10">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 10">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 11">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(11/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 11">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 11">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 12">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(12/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 12">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 12">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- <div class="module four" v-if="step >= 13">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(13/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 13">
+            <div class="main">
+              <div class="select" v-for="(item,index) in person" :key="index">
+
+              </div>
+            </div>
+            <div class="btn" @click="add">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 13">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div> -->
+
+    <!-- 撤销按键 -->
+    <div class="revoke" v-if="step > 1" @click="sub">返回上一题</div>
+  </div>
+</template>
+
+<script>
+import { Toast } from 'vux'
+import datePicker from '@/components/DatePicker'
+import singlePicker from '@/components/SinglePicker'
+export default {
+  name: 'DecisionStep',
+  components: {
+    Toast,
+    datePicker,
+    singlePicker
+  },
+  data () {
+    return {
+      show: false,
+      toastText: '',
+      step: 0,
+      sex: [], // 性别
+      person: [], // 人物
+      family: [
+        {name: '自己', index: 0}, {name: '配偶', index: 1}, {name: '儿子', index: 2},
+        {name: '女儿', index: 3}, {name: '父亲', index: 4}, {name: '母亲', index: 5},
+        {name: '伴侣父亲', index: 6}, {name: '伴侣母亲', index: 7}
+      ],
+      birth: [], // 出生日期
+      jobType: [[
+        {text: '室内', value: 0}, {text: '室外普通', value: 1}, {text: '室外复杂', value: 2},
+        {text: '学生', value: 3}, {text: '退休', value: 4}, {text: '其它', value: 5}
+      ]],
+      job: [], // 职业类型
+      income: [] // 收入
+    }
+  },
+  mounted () {
+  },
+  methods: {
+    add () {
+      this.step = this.step + 1
+    },
+    sub () {
+      this.step = this.step - 1
+    },
+    one () {
+      if (this.sex.length === 0) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    two () {
+      if (this.person.length === 0) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.person = this._.orderBy(this.person, 'index')
+      this.add()
+    },
+    changeBirth (value, index) {
+      this.birth[index] = value[0]
+    },
+    three () {
+      if (this.birth.length !== this.person.length || this._.indexOf(this.birth, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    changeJob (value, index) {
+      this.job[index] = value[0]
+    },
+    four () {
+      if (this.job.length !== this.person.length || this._.indexOf(this.job, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    five () {
+      // this.income.forEach((item, index) => {
+      //   if (!(/^[0-9][0-9]{0,3}$/).test(item)) {
+      //     this.toastText = '请输入正确的金额'
+      //     this.show = true
+      //     this.income[index] = ''
+      //   }
+      // })
+      // if (this.income.length !== this.person.length || this._.indexOf(this.income, undefined) !== -1) {
+      //   this.toastText = '请先回答完问题哦'
+      //   this.show = true
+      //   return
+      // }
+      // this.add()
+      let p = new Promise((res, rej) => {
+
+      })
+    }
+  },
+  computed: {
+    oneText () {
+      if (this.sex === 'm') {
+        return '先生'
+      } else {
+        return '女士'
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+/* 总体公共样式 */
+#decisionstep {
+  font-size: var(--m-fs);
+  color: var(--d-bgc);
+  padding: calc(2 * var(--edge)) var(--edge);
+}
+
+.module {
+  margin-bottom: 50px;
+  &.module:after {
+    content:"";
+    clear:both;
+    display:block;
+  }
+}
+
+.left {
+  display: flex;
+  & .btn {
+    height: 70px;
+    line-height: 70px;
+    background: linear-gradient(top,#6db7e5,#619ede);
+    box-shadow: 0px 2px 16px 0px rgba(119, 177, 234, 0.46);
+    border-radius: 100px;
+    color: #fff;
+    text-align: center;
+  }
+}
+
+.right {
+  float: right;
+  margin-top: 50px;
+  display: flex;
+  & .text {
+    position: relative;
+    max-width: 440px;
+    margin-right: 20px;
+    background: var(--sky-blue);
+    padding: 30px;
+    border-radius: 10px;
+    color: #fff;
+    box-shadow: 0 9px 19px #c1dcf5;
+  }
+  & .text:after {
+    content: "";
+    position: absolute;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid var(--sky-blue);
+    top: 0;
+    right: -20px;
+  }
+}
+
+.photo {
+  & img {
+    width: 85px;
+    height: 85px;
+  }
+}
+
+.content {
+  position: relative;
+  width: 460px;
+  margin-left: 20px;
+  padding: 30px;
+  background: var(--bgc);
+  box-shadow: 0 10px 20px rgba(123,159,195,.2);
+  border-radius: 10px;
+  &.content:before {
+    content: "";
+    position: absolute;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid #fff;
+    top: 0;
+    left: -20px;
+  }
+  & .title {
+    line-height: 48px;
+    & span {
+      font-size: var(--s-fs);
+      color: var(--s-bgc);
+    }
+  }
+  & .question {
+    margin-top: 40px;
+  }
+}
+
+/* 每一个问题单独的样式 */
+.zero {
+  & .btn {
+    border: 2PX solid var(--sky-blue);
+    background: #fff;
+    color: var(--sky-blue);
+    & .icon {
+      width: 30px;
+      height: 30px;
+    }
+  }
+}
+
+.revoke {
+  width: 70%;
+  height: 70px;
+  line-height: 70px;
+  margin: 0 auto;
+  border: 2PX solid var(--sky-blue);
+  border-radius: 100px;
+  color: var(--sky-blue);
+  text-align: center;
+}
+</style>

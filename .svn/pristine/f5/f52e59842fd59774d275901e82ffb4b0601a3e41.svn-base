@@ -1,0 +1,79 @@
+<template>
+  <div id="decisionlist">
+    <topBar :title="'已保存的方案'"></topBar>
+
+    <div class="list" v-for="(item,index) in content" :key="index" @click="link(item.id)">
+      <div class="caption">
+        <img :src="item.img" alt="">
+        <div class="name">{{ item.name }}</div>
+        <div class="date">{{ item.date }}</div>
+      </div>
+      <div class="price">保费预算：<span>￥{{ item.price }}</span></div>
+    </div>
+  </div>
+</template>
+
+<script>
+import topBar from '@/components/TopBar'
+export default {
+  name: 'DecisionList',
+  components: {
+    topBar
+  },
+  data () {
+    return {
+      content: []
+    }
+  },
+  mounted () {
+    this.getInfo()
+  },
+  methods: {
+    getInfo () {
+      this.axios.get('/api2/Decision/getDecisionList').then(res => {
+        this.content = res.data.content
+      })
+    },
+    link (id) {
+      this.$router.push({ name: 'DecisionCase', params: {id: id} })
+    }
+  }
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+.list {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--edge);
+  background: #fff;
+  height: 120px;
+  margin-bottom: 20px;
+  & .caption {
+    width: 50%;
+  }
+  & img {
+    width: 120px;
+    height: 120px;
+    border: 2PX solid var(--blue);
+    border-radius: 50%;
+    float: left;
+    margin-right: 20px;
+  }
+  & .name {
+    font-size: var(--m3-fs);
+    float: left;
+    margin-top: 20px;
+    width: 50%;
+  }
+  & .date {
+    color: var(--s-bgc);
+    font-size: var(--s-fs);
+    float: left;
+  }
+  & .price {
+    line-height: 120px;
+  }
+}
+</style>

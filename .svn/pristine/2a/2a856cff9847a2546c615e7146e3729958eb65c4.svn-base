@@ -1,0 +1,318 @@
+<template>
+  <div id="product-detail">
+    <topBar :title="content.name"></topBar>
+    <!-- banner图 -->
+    <div class="banner-detail">
+      <div class="wrap-content">
+        <div class="text">
+          <div class="title">{{ content.name }}</div>
+          <div class="labels">{{ content.labels }}</div>
+        </div>
+        <div class="cp" v-if="content.cp">
+          <div class="circle">
+            <x-circle :percent="content.cp" :stroke-width="7" :trail-width="7"
+            stroke-color="#D9ECFF" trail-color="#8DB7FF">
+              <span>{{ content.cp }}<br>CP</span>
+            </x-circle>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 公司logo -->
+    <div class="tip">
+      <div>
+        由<span>{{ content.comp_desc }}</span>承保并负责理赔
+      </div>
+      <img :src="img | url" alt="" width="30%" height="40%">
+    </div>
+    <!-- 主要内容 -->
+    <div class="box">
+      <!-- 下拉框 -->
+      <div class="select-wrap" v-if="content.plans">
+        <select v-model="planValue" @change="changePlan">
+          <option v-for="(item,index) in content.plans" :key="index"
+          :value="item.value">{{ item.name }}</option>
+        </select>
+      </div>
+      <!-- 保障内容 -->
+      <div class="terms">
+        <div v-for="(item, index) in content.terms" :key="index" class="wrap">
+          <div class="caption">{{ item.caption }}</div>
+          <div class="label">{{ item.price }}</div>
+        </div>
+      </div>
+      <!-- 查看明细 -->
+      <div class="detail" @click="detailMask">查看明细&nbsp;&nbsp;></div>
+      <!-- 主要内容 -->
+      <div class="modular">
+        <div class="title">综合评分</div>
+        <chart :options="polar" style="width:100%;height:280px;"></chart>
+        <div class="evaluation" v-for="(item,index) in content.evaluations" :key="index">
+          <div class="name">{{ item.name }}</div>
+          <div class="info">{{ item.info }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import topBar from '@/components/TopBar'
+import { XCircle } from 'vux'
+import ECharts from 'vue-echarts/components/ECharts.vue'
+import 'echarts/lib/chart/radar'
+export default {
+  name: 'ProductDetail',
+  components: {
+    topBar,
+    XCircle,
+    chart: ECharts
+  },
+  props: {
+    id: {}
+  },
+  data () {
+    return {
+      content: [], // 所有数据
+      img: '', // 公司logo
+      planValue: '', // 计划选项
+      // 雷达图配置
+      polar: {
+        title: {
+          text: '雷达图'
+        },
+        color: '#c00',
+        radar: [{
+          indicator: [0],
+          radius: 100
+        }],
+        series: [{
+          name: '综合评分',
+          type: 'radar',
+          data: [{
+            value: [],
+            areaStyle: {
+              normal: {
+                opacity: 0.1
+              }
+            }
+          }],
+          label: {
+            show: true,
+            color: '#c00',
+            formatter: function (params) {
+              return params.value
+            }
+          }
+        }]
+      }
+    }
+  },
+  mounted () {
+    this.getInfo()
+  },
+  methods: {
+    // 获取所有信息
+    getInfo () {
+      this.axios.get('/api2/getProductInfo', {
+        params: {
+          ID: this.id
+        }
+      }).then(res => {
+        this.name = res.data.content.name
+        this.content = res.data.content
+        this.img = this.content.logoImg
+        this.planValue = this.content.plansDefault
+        // 获取雷达图数据
+        let radarValue = []
+        let max = {max: 100}
+        let radarArr = res.data.content.radar
+        for (let i = 0; i < res.data.content.radar.length; i++) {
+          radarValue.push(res.data.content.radar[i].value)
+          Object.assign(res.data.content.radar[i], max)
+        }
+        this.polar.series[0].data[0].value = radarValue
+        this.polar.radar[0].indicator = radarArr
+      })
+    },
+    // 切换计划
+    changePlan () {
+      console.log(this.planValue)
+    },
+    // 查看明细
+    detailMask () {
+    }
+  },
+  filters: {
+    url (value) {
+      // 测试服获取cdn图片
+      value = value.replace(/cdn.aibaodata/, 'wapp.ai-well')
+      return value
+    }
+  }
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+.banner-detail {
+  width: 100%;
+  height: 200px;
+  background-image: url('../../assets/img/product-img.jpg');
+  background-size: cover;
+  background-position: center 0;
+  color: #fff;
+  & .wrap-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0 55px;
+    height: 100%;
+  }
+  & .text {
+    flex: 2.5;
+    & .title {
+      font-size: var(--b-fs);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    & .labels {
+      font-size: var(--s-fs);
+    }
+  }
+  & .cp {
+    flex: 1;
+    & .circle {
+      float: right;
+      width: 150px;
+      height: 150px;
+      font-size: var(--m-fs);
+    }
+  }
+}
+
+/* 公司logo */
+.tip {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--bgc);
+  font-size: var(--s-fs);
+  & span {
+    color: var(--blue);
+  }
+}
+
+/* 主要内容外层div */
+.box {
+  padding: var(--edge);
+}
+
+/* 计划选项 */
+.select-wrap {
+  position: relative;
+  background: #f0f5fa;
+  margin-bottom: var(--edge);
+  & select {
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: 80px;
+    line-height: 80px;
+    padding: 0 34px;
+    background: none;
+    border: 0;
+    color: var(--red);
+    font-size: var(--m-fs);
+    background-image: url("../../assets/img/down.png");
+    background-repeat: no-repeat;
+    background-position: 95%;
+    background-size: 5%;
+  }
+  & select:focus {
+    outline: none;
+  }
+}
+
+/* 保障内容 */
+.terms {
+  padding: var(--edge) 34px;
+  font-size: var(--m3-fs);
+  background: var(--s-blue);
+  color: var(--m-bgc);
+  line-height: 2;
+  & .wrap {
+    display: flex;
+    & .caption {
+      flex: 3;
+    }
+    & .label {
+      flex: 1;
+      text-align: right;
+    }
+  }
+}
+
+/* 查看明细 */
+.detail {
+  color: var(--blue);
+  height: 80px;
+  line-height: 80px;
+  text-align: center;
+  font-size: var(--m-fs);
+  background: var(--d-blue);
+  margin-top: 5px;
+  margin-bottom: calc(var(--edge) * 2);
+}
+
+/* 详情包裹模块 */
+.modular {
+  /* 标题 */
+  & .title {
+    position: relative;
+    text-indent: 40px;
+    height: 80px;
+    line-height: 80px;
+    font-size: var(--m-fs);
+    font-weight: 600;
+    color: var(--d-bgc);
+    background: var(--s-blue);
+    padding-left: 5px;
+  }
+  & .title:after {
+    content: "";
+    position: absolute;
+    left: var(--edge);
+    top: 50%;
+    margin-top: -6px;
+    width: 16px;
+    height: 16px;
+    background: var(--blue);
+    border-radius: 50%;
+  }
+
+  /* 综合评分 */
+  & .evaluation {
+    display: flex;
+    font-size: var(--m3-fs);
+    background: var(--s-blue);
+    padding: var(--edge);
+    & .name {
+      flex: 1;
+      color: var(--blue);
+    }
+    & .info {
+      flex: 3;
+      color: var(--s-bgc);
+      text-align: justify;
+    }
+  }
+  & .evaluation:nth-child(odd) {
+    background: var(--d-blue);
+  }
+  & .evaluation:not(:first-child) {
+    margin-bottom: 5px;
+  }
+}
+</style>

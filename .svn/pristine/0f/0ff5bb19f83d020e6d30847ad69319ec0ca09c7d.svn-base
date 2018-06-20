@@ -1,0 +1,865 @@
+<template>
+  <div id="decisionstep">
+    <toast v-model="show" :time="800" type="text" width="200px" position="middle" :text="toastText"></toast>
+
+    <div class="module zero">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">您好，我是AI保的智能顾问-爱宝。<br/>请花2分钟回答几个问题，为您定制保障方案。
+            <br/>您越认真，我越靠谱！</div>
+          <div class="question" v-if="step == 0">
+            <div class="btn" @click="add">开始定制吧
+              <svg class="icon" aria-hidden="true">
+                <use xlink:href="#icon-xiangyou"></use>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 0">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module one" v-if="step >= 1">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(1/13)我该称呼您先生还是女士呢？</div>
+          <div class="question" v-if="step == 1">
+            <div class="main">
+              <div class="firstradio">
+                <input type="radio" id="m" value="m" v-model="sex">
+                <label for="m">男</label>
+              </div>
+              <div class="firstradio">
+                <input type="radio" id="f" value="f" v-model="sex">
+                <label for="f">女</label>
+              </div>
+            </div>
+            <div class="btn" @click="one">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 1">
+        <div class="text">{{ oneText }}</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module two" v-if="step >= 2">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(2/13)您要为哪些家人投保呢？<span>(可单选可多选，也可点击“+”添加更多)</span></div>
+          <div class="question" v-if="step == 2">
+            <div class="main">
+              <div class="checkbox" v-for="item in family" :key="item.index">
+                <input type="checkbox" :id="item.index" :value="item" v-model="person">
+                <label :for="item.index">{{ item.name }}</label>
+              </div>
+            </div>
+            <div class="btn" @click="two">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 2">
+        <div class="text">投保对象：
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}
+            <span v-if="index < person.length-1">、</span>
+          </span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module three" v-if="step >= 3">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(3/13)被保人的出生日期是？<span>(请填写身份证对应的出生日期)</span></div>
+          <div class="question" v-if="step == 3">
+            <div class="main">
+              <div class="picker" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <datePicker @update="changeBirth($event, index)" :text="birth[index]" :selected="birth[index]"></datePicker>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="three">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 3">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ birth[index][0] }}-{{ birth[index][1] }}-{{ birth[index][2] }}<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module four" v-if="step >= 4">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(4/13)被保人的职业类型是？</div>
+          <div class="question" v-if="step == 4">
+            <div class="main">
+              <div class="picker" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <singlePicker @update="changeJob($event, index)" :content="jobType" :index="job[index]" :text="job[index]" :title="'职业类型'"></singlePicker>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="four">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 4">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ jobType[0][job[index]].text }}<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module five" v-if="step >= 5">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(5/13)被保人的个人年收入是？<span>(请填写0-9999中的整数，如无收入请填写0)</span></div>
+          <div class="question" v-if="step == 5">
+            <div class="main">
+              <div class="txt" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <input type="text" maxlength="4" v-model="income[index]">万/年
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="five">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 5">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ income[index] }}万/年<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module six" v-if="step >= 6">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(6/13)被保人的个人保险预算是？<span>(请填写200-99999中的整数)</span></div>
+          <div class="question" v-if="step == 6">
+            <div class="main">
+              <div class="txt" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <input type="text" maxlength="5" v-model="budget[index]"><span>元</span>/年
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="six">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 6">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ budget[index] }}元/年<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module seven" v-if="step >= 7">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(7/13)被保人是否有社保？<span>(社保包括城镇职工医保、城镇居民医保、新农合)</span></div>
+          <div class="question" v-if="step == 7">
+            <div class="main">
+              <div class="radiobox" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'security' + index + 1" value="有" v-model="security[index]">
+                    <label :for="'security' + index + 1">有社保</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'security' + index + 0" value="无" v-model="security[index]">
+                    <label :for="'security' + index + 0">无社保</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="seven">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 7">
+        <div class="text">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ security[index] }}社保<br/></span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module eight" v-if="step >= 8">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(8/13)被保人的长期居住地？</div>
+          <div class="question" v-if="step == 8">
+            <div class="main">
+              <div class="location" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <div>重庆市</div>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="eight">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 8">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module nine" v-if="step >= 9">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(9/13)被保人是否开车？<span>(可跳过)</span></div>
+          <div class="question" v-if="step == 9">
+            <div class="main">
+              <div class="radiobox" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'car' + index + 2" value="经常" v-model="car[index]">
+                    <label :for="'car' + index + 2">经常</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'car' + index + 1" value="偶尔" v-model="car[index]">
+                    <label :for="'car' + index + 1">偶尔</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'car' + index + 0" value="从不" v-model="car[index]">
+                    <label :for="'car' + index + 0">从不</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="nine">选好了，继续</div>
+            <div class="skip" @click="skip('car')">跳过</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 9">
+        <div class="text" v-if="car.length > 0">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ car[index] }}<br/></span>
+        </div>
+        <div class="text" v-else>
+          <span>跳过</span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module ten" v-if="step >= 10">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(10/13)被保人是否旅游出行？<span>(可跳过)</span></div>
+          <div class="question" v-if="step == 10">
+            <div class="main">
+              <div class="radiobox" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'travel' + index + 2" value="经常" v-model="travel[index]">
+                    <label :for="'travel' + index + 2">经常</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'travel' + index + 1" value="偶尔" v-model="travel[index]">
+                    <label :for="'travel' + index + 1">偶尔</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'travel' + index + 0" value="从不" v-model="travel[index]">
+                    <label :for="'travel' + index + 0">从不</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="ten">选好了，继续</div>
+            <div class="skip" @click="skip('travel')">跳过</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 10">
+        <div class="text" v-if="travel.length > 0">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ travel[index] }}<br/></span>
+        </div>
+        <div class="text" v-else>
+          <span>跳过</span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module eleven" v-if="step >= 11">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(11/13)被保人是否运动？<span>(可跳过)</span></div>
+          <div class="question" v-if="step == 11">
+            <div class="main">
+              <div class="radiobox" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'sports' + index + 2" value="经常" v-model="sports[index]">
+                    <label :for="'sports' + index + 2">经常</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'sports' + index + 1" value="偶尔" v-model="sports[index]">
+                    <label :for="'sports' + index + 1">偶尔</label>
+                  </div>
+                  <div class="radiowrap">
+                    <input type="radio" :id="'sports' + index + 0" value="从不" v-model="sports[index]">
+                    <label :for="'sports' + index + 0">从不</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="eleven">选好了，继续</div>
+            <div class="skip" @click="skip('sports')">跳过</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 11">
+        <div class="text" v-if="sportsSkip.legend > 0">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：{{ sports[index] }}<br/></span>
+        </div>
+        <div class="text" v-else>
+          <span>跳过</span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module twelve" v-if="step >= 12">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(12/13)被保人是否有以下不良习惯？<span>(可单选，可多选，可跳过)</span></div>
+          <div class="question" v-if="step == 12">
+            <div class="main">
+              <div class="radiobox" v-for="(item,index) in person" :key="index">
+                <div>
+                  <div class="photo"></div>
+                  <div class="name">{{ item.name }}</div>
+                </div>
+                <div>
+                  <div class="radiowrap">
+                    <input type="radio" id="custom" value="没有">
+                    <label for="custom">没有</label>
+                  </div>
+                  <div class="checkbox">
+                    <input type="checkbox" :id="'custom' + index + 1" value="饮食不规律" v-model="custom[index]">
+                    <label :for="'custom' + index + 1">饮食不规律</label>
+                  </div>
+                  <div class="checkbox">
+                    <input type="checkbox" :id="'custom' + index + 2" value="熬夜" v-model="custom[index]">
+                    <label :for="'custom' + index + 2">熬夜</label>
+                  </div>
+                  <div class="checkbox">
+                    <input type="checkbox" :id="'custom' + index + 3" value="喝酒" v-model="custom[index]">
+                    <label :for="'custom' + index + 3">喝酒</label>
+                  </div>
+                  <div class="checkbox">
+                    <input type="checkbox" :id="'custom' + index + 4" value="吸烟" v-model="custom[index]">
+                    <label :for="'custom' + index + 4">吸烟</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="btn" @click="twelve">选好了，继续</div>
+            <div class="skip" @click="skip('custom')">跳过</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 12">
+        <div class="text" v-if="custom.length > 0">
+          <span v-for="(item,index) in person" :key="index">{{ item.name }}：
+            <span v-for="(item2,index2) in custom[index]" :key="index2">{{ item2 }}<span v-if="index2 < custom[index].length - 1">、</span></span><br/>
+          </span>
+        </div>
+        <div class="text" v-else>
+          <span>跳过</span>
+        </div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module thirteen" v-if="step >= 13">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">(13/13)请填写您的家庭财务情况<span>(请填写0-9999中的整数，没有请填写0)</span></div>
+          <div class="question" v-if="step == 13">
+            <div class="main">
+              <div>总资产<input type="text" maxlength="4">万元</div>
+              <div>总负债<input type="text" maxlength="4">万元</div>
+              <div>家庭年收入<input type="text" maxlength="4">万元</div>
+            </div>
+            <div class="btn" @click="thirteen">选好了，继续</div>
+          </div>
+        </div>
+      </div>
+      <div class="right" v-if="step > 13">
+        <div class="text">开始定制保障方案</div>
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+      </div>
+    </div>
+
+    <div class="module end" v-if="step == 14">
+      <div class="left">
+        <div class="photo">
+          <img src="../../assets/img/decision.png" alt="">
+        </div>
+        <div class="content">
+          <div class="title">完成！为您定制的保险方案已经生成。<span>您可以分享给家人或朋友(您的信息我们将高度保密，请放心)</span></div>
+          <div class="question">
+            <div>图</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 撤销按键 -->
+    <div class="revoke" v-if="step > 1 && step < 14" @click="sub">返回上一题</div>
+  </div>
+</template>
+
+<script>
+import { Toast } from 'vux'
+import datePicker from '@/components/DatePicker'
+import singlePicker from '@/components/SinglePicker'
+export default {
+  name: 'DecisionStep',
+  components: {
+    Toast,
+    datePicker,
+    singlePicker
+  },
+  data () {
+    return {
+      show: false,
+      toastText: '',
+      step: 0,
+      sex: [], // 性别
+      person: [], // 人物
+      family: [
+        {name: '自己', index: 0}, {name: '配偶', index: 1}, {name: '儿子', index: 2},
+        {name: '女儿', index: 3}, {name: '父亲', index: 4}, {name: '母亲', index: 5},
+        {name: '伴侣父亲', index: 6}, {name: '伴侣母亲', index: 7}
+      ],
+      birth: [], // 出生日期
+      jobType: [[
+        {text: '室内', value: 0}, {text: '室外普通', value: 1}, {text: '室外复杂', value: 2},
+        {text: '学生', value: 3}, {text: '退休', value: 4}, {text: '其它', value: 5}
+      ]],
+      job: [], // 职业类型
+      income: [], // 收入
+      budget: [], // 预算
+      security: [], // 有无社保
+      city: [], // 居住地
+      car: [], // 是否经常开车
+      travel: [], // 是否旅行
+      sports: [], // 是否运动
+      custom: [], // 不良习惯
+      asset: [] // 总资产数据
+    }
+  },
+  mounted () {
+  },
+  methods: {
+    add () {
+      this.step = this.step + 1
+    },
+    sub () {
+      this.step = this.step - 1
+    },
+    skip (value) {
+      this[value].length = 0
+      this[value + 'Skip'] = true
+      this.add()
+    },
+    one () {
+      if (this.sex.length === 0) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    two () {
+      if (this.person.length === 0) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.person = this._.orderBy(this.person, 'index')
+      this.custom.length = this.person.length
+      this.add()
+    },
+    changeBirth (value, index) {
+      this.birth[index] = value[0]
+    },
+    three () {
+      if (this.birth.length !== this.person.length || this._.indexOf(this.birth, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    changeJob (value, index) {
+      this.job[index] = value[0]
+    },
+    four () {
+      if (this.job.length !== this.person.length || this._.indexOf(this.job, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    five () {
+      let p = new Promise((resolve, reject) => {
+        this.income.forEach((item, index) => {
+          if (!(/^([1-9]\d*|[0]{1,1})$/).test(item) || item < 0 || item > 9999) {
+            this.toastText = '请输入正确的金额'
+            this.show = true
+            this.income[index] = ''
+            resolve(false)
+            return false
+          }
+        })
+        resolve(true)
+      }).then((value) => {
+        if (!value) return
+        if (this.income.length !== this.person.length || this._.indexOf(this.income, undefined) !== -1) {
+          this.toastText = '请先回答完问题哦'
+          this.show = true
+          return
+        }
+        this.add()
+      })
+      return p
+    },
+    six () {
+      let p = new Promise((resolve, reject) => {
+        this.budget.forEach((item, index) => {
+          if (!(/^([1-9]\d*|[0]{1,1})$/).test(item) || item < 200 || item > 99999) {
+            this.toastText = '请输入正确的金额'
+            this.show = true
+            this.income[index] = ''
+            resolve(false)
+            return false
+          }
+        })
+        resolve(true)
+      }).then((value) => {
+        if (!value) return
+        if (this.budget.length !== this.person.length || this._.indexOf(this.budget, undefined) !== -1) {
+          this.toastText = '请先回答完问题哦'
+          this.show = true
+          return
+        }
+        this.add()
+      })
+      return p
+    },
+    seven () {
+      if (this.security.length !== this.person.length || this._.indexOf(this.security, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    eight () {
+      this.add()
+    },
+    nine () {
+      if (this.car.length !== this.person.length || this._.indexOf(this.car, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    ten () {
+      if (this.travel.length !== this.person.length || this._.indexOf(this.travel, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    eleven () {
+      if (this.sports.length !== this.person.length || this._.indexOf(this.sports, undefined) !== -1) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    twelve () {
+      if (this.custom.length !== this.person.length) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      let tem = true
+      this.custom.forEach((item, index) => {
+        if (item.length < 1) {
+          tem = false
+          return false
+        }
+      })
+      if (!tem) {
+        this.toastText = '请先回答完问题哦'
+        this.show = true
+        return
+      }
+      this.add()
+    },
+    thirteen () {
+
+    }
+  },
+  computed: {
+    oneText () {
+      if (this.sex === 'm') {
+        return '先生'
+      } else {
+        return '女士'
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+/* 总体公共样式 */
+#decisionstep {
+  font-size: var(--m-fs);
+  color: var(--d-bgc);
+  padding: calc(2 * var(--edge)) var(--edge);
+}
+
+.module {
+  margin-bottom: 50px;
+  &.module:after {
+    content:"";
+    clear:both;
+    display:block;
+  }
+}
+
+.left {
+  display: flex;
+  & .btn {
+    height: 70px;
+    line-height: 70px;
+    background: linear-gradient(top,#6db7e5,#619ede);
+    box-shadow: 0px 2px 16px 0px rgba(119, 177, 234, 0.46);
+    border-radius: 100px;
+    color: #fff;
+    text-align: center;
+  }
+}
+
+.right {
+  float: right;
+  margin-top: 50px;
+  display: flex;
+  & .text {
+    position: relative;
+    max-width: 440px;
+    margin-right: 20px;
+    background: var(--sky-blue);
+    padding: 30px;
+    border-radius: 10px;
+    color: #fff;
+    box-shadow: 0 9px 19px #c1dcf5;
+  }
+  & .text:after {
+    content: "";
+    position: absolute;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid var(--sky-blue);
+    top: 0;
+    right: -20px;
+  }
+}
+
+.photo {
+  & img {
+    width: 85px;
+    height: 85px;
+  }
+}
+
+.content {
+  position: relative;
+  width: 460px;
+  margin-left: 20px;
+  padding: 30px;
+  background: var(--bgc);
+  box-shadow: 0 10px 20px rgba(123,159,195,.2);
+  border-radius: 10px;
+  &.content:before {
+    content: "";
+    position: absolute;
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 20px solid #fff;
+    top: 0;
+    left: -20px;
+  }
+  & .title {
+    line-height: 48px;
+    & span {
+      font-size: var(--s-fs);
+      color: var(--s-bgc);
+    }
+  }
+  & .question {
+    margin-top: 40px;
+  }
+}
+
+/* 每一个问题单独的样式 */
+.zero {
+  & .btn {
+    border: 2PX solid var(--sky-blue);
+    background: #fff;
+    color: var(--sky-blue);
+    & .icon {
+      width: 30px;
+      height: 30px;
+    }
+  }
+}
+
+.revoke {
+  width: 70%;
+  height: 70px;
+  line-height: 70px;
+  margin: 0 auto;
+  border: 2PX solid var(--sky-blue);
+  border-radius: 100px;
+  color: var(--sky-blue);
+  text-align: center;
+}
+</style>

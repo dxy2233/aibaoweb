@@ -1,0 +1,33 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+import Strict from '@/components/strict/Strict'
+import ProductDetail from '@/components/product/ProductDetail'
+
+Vue.use(Router)
+
+export default new Router({
+  scrollBehavior (to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { x: 0, y: 0 }
+    }
+  },
+  routes: [
+    {
+      path: '/strict',
+      name: 'Strict',
+      component: Strict
+    },
+    {
+      path: '/',
+      redirect: '/strict'
+    },
+    {
+      path: '/product/:id',
+      name: 'ProductDetail',
+      component: ProductDetail,
+      props: true
+    }
+  ]
+})

@@ -1,0 +1,27 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+             "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+             "Microsoft YaHei",SimSun, sans-serif;
+  background: #f8f8f8;
+}
+
+/* svg */
+.icon {
+  vertical-align: middle;
+  fill: currentColor;
+  overflow: hidden;
+}
+
+:root {
+  --blue: #69c;
+  --red: #c00;
+  --bgc: #fff;
+  --b-fs: 32px;
+  --m-fs: 30px;
+  --s-fs: 26px;
+}

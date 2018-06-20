@@ -1,0 +1,64 @@
+<template>
+  <div id="top-bar">
+    <div class="left" @click="back">
+      <svg class="icon" aria-hidden="true">
+        <use xlink:href="#icon-moreDown"></use>
+      </svg> 返回
+    </div>
+    <div class="title">{{ title }}</div>
+    <div class="right">
+      <svg class="icon" aria-hidden="true">
+        <use xlink:href="#icon-gengduo"></use>
+      </svg>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'TopBar',
+  props: {
+    title: {}
+  },
+  data () {
+    return {}
+  },
+  methods: {
+    back () {
+      this.$router.go(-1)
+    }
+  }
+}
+</script>
+
+<style scoped>
+@import '../assets/css/global.css';
+#top-bar {
+  display: flex;
+  text-align: center;
+  height: 80px;
+  line-height: 80px;
+  color: var(--m-bgc);
+  background: var(--bgc);
+}
+
+.left {
+  flex: 1;
+  font-size: var(--m-fs);
+  & .icon {
+    transform: rotate(90deg);
+    width: 30px;
+    height: 32px;
+  }
+}
+
+.title {
+  flex: 4;
+  color: var(--blue);
+  font-size: var(--b-fs);
+}
+
+.right {
+  flex: 1;
+}
+</style>

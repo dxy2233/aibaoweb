@@ -1,0 +1,35 @@
+<template>
+  <div id="strict">
+    <p>2233似懂非懂是范德萨发</p>
+    <group>
+  <cell title="title" value="value"></cell>
+</group>
+  </div>
+</template>
+
+<script>
+import { Group, Cell } from 'vux'
+export default {
+  components: {
+    Group,
+    Cell
+  },
+  name: 'Strict',
+  data () {
+    return {
+      msg: 'Welcome to Your Vue.js App'
+    }
+  }
+}
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+  #strict {
+    & p {
+      width: 100px;
+      color: red;
+      font-size: 16PX;
+    }
+  }
+</style>

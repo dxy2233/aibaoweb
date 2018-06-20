@@ -1,0 +1,196 @@
+<template>
+  <div id="contrast">
+    <!-- 顶部提示 -->
+    <tips></tips>
+
+    <div class="wrap" v-if="life.list">
+      <div class="caption">
+        寿险<span @click="link(1)">更多产品></span>
+      </div>
+      <div class="content">
+        <div class="list" v-for="(item,index) in life.list" :key="index" @click="proLink(item.id)">
+          <div class="main">
+            <div class="pic">
+              <img :src="item.pic" alt="">
+              <div v-if="item.buy_status != 0" class="sale"></div>
+            </div>
+            <div class="info">
+              <div class="name">{{ item.name }}</div>
+              <div class="label">{{ item.labels }}</div>
+            </div>
+            <div class="round">
+              <div class="circle">
+                <x-circle :percent="item.CP - 2" :stroke-width="7" :trail-width="7"
+                stroke-color="#8db7e1" trail-color="#D9ECFF">
+                  <span>{{ item.CP }}<br>CP</span>
+                </x-circle>
+              </div>
+              <div class="price">
+                ￥{{ item.price }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap" v-if="disease.list">
+      <div class="caption">
+        重疾<span @click="link(2)">更多产品></span>
+      </div>
+      <div class="content">
+        <div class="list" v-for="(item,index) in disease.list" :key="index" @click="proLink(item.id)">
+          <div class="main">
+            <div class="pic">
+              <img :src="item.pic" alt="">
+              <div v-if="item.buy_status != 0" class="sale"></div>
+            </div>
+            <div class="info">
+              <div class="name">{{ item.name }}</div>
+              <div class="label">{{ item.labels }}</div>
+            </div>
+            <div class="round">
+              <div class="circle">
+                <x-circle :percent="item.CP - 2" :stroke-width="7" :trail-width="7"
+                stroke-color="#8db7e1" trail-color="#D9ECFF">
+                  <span>{{ item.CP }}<br>CP</span>
+                </x-circle>
+              </div>
+              <div class="price">
+                ￥{{ item.price }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <tabBar></tabBar>
+  </div>
+</template>
+
+<script>
+import tips from '@/components/Tips'
+import tabBar from '@/components/TabBar'
+import { XCircle } from 'vux'
+export default {
+  name: 'Contrast',
+  components: {
+    tips,
+    tabBar,
+    XCircle
+  },
+  data () {
+    return {
+      life: [],
+      disease: []
+    }
+  },
+  mounted () {
+    this.getInfo()
+  },
+  methods: {
+    getInfo () {
+      this.axios.get('/api2/getContrast').then(res => {
+        this.life = res.data.content[0]
+        this.disease = res.data.content[1]
+      })
+    },
+    link (type) {
+      this.$router.push({ name: 'ContrastList', params: {type: type} })
+    },
+    proLink (id) {
+      this.$router.push({ name: 'ProductDetail', params: {id: id} })
+    }
+  }
+}
+</script>
+
+<style scoped>
+@import '../../assets/css/global.css';
+#contrast {
+  height: calc(100% + 450px);
+}
+
+.wrap {
+  margin-bottom: 20px;
+}
+
+.caption {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: #fff;
+  height: 80px;
+  line-height: 80px;
+  font-size: var(--m-fs);
+  color: var(--m-bgc);
+  & span {
+    font-size: var(--m2-fs);
+  }
+}
+
+.content {
+  border-top: 2PX solid #eee;
+}
+
+.list {
+  background: #fff;
+  padding: var(--edge);
+  border-bottom: 2PX solid #eee;
+  & .main {
+    display: flex;
+  }
+  & .pic {
+    flex: 1;
+    position: relative;
+    width: 170px;
+    height: 170px;
+    & img {
+      width: 100%;
+      height: 100%;
+      border: 2PX solid #eee;
+    }
+    & .sale {
+      position: absolute;
+      left: 0;
+      top: -10px;
+      width: 160px;
+      height: 80px;
+      background-image: url("../../assets/img/sale.png");
+      background-size: 50%;
+      background-repeat: no-repeat;
+    }
+  }
+  & .info {
+    flex: 2;
+    margin-left: var(--edge);
+    & .name {
+      font-size: var(--m2-fs);
+      height: 80px;
+      line-height: 40px;
+    }
+    & .label {
+      font-size: var(--s-fs);
+      color: var(--s-bgc);
+      height: 80px;
+      line-height: 40px;
+    }
+  }
+  & .round {
+    flex: 1;
+    & .price {
+      font-size: var(--m3-fs);
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+    & .circle {
+      width: 120px;
+      height: 120px;
+      font-size: var(--m-fs);
+      color: var(--blue);
+      float: right;
+    }
+  }
+}
+</style>
